@@ -4,5 +4,5 @@ dev:
 
 build:
 	cd ./web && npm run build;
-	rice embed-go
+	cd ricebox; rice embed-go;
 	go build
