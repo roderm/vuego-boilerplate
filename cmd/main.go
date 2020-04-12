@@ -5,6 +5,7 @@ import (
 
 	"github.com/roderm/vuego-boilerplate/cmd/develop"
 	"github.com/roderm/vuego-boilerplate/cmd/serve"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
@@ -16,5 +17,7 @@ func main() {
 		},
 	}
 	err := app.Run(os.Args)
-	panic(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -1,9 +1,12 @@
 package serve
 
 import (
-	"fmt"
-	"net/http"
+	net_http "net/http"
 
+	"github.com/roderm/vuego-boilerplate/pkg/app"
+	"github.com/roderm/vuego-boilerplate/pkg/grpc"
+	"github.com/roderm/vuego-boilerplate/pkg/http"
+	"github.com/roderm/vuego-boilerplate/ricebox"
 	"github.com/urfave/cli/v2"
 )
 
@@ -28,7 +31,11 @@ var Runner = &cli.Command{
 }
 
 func Run(ctx *cli.Context) error {
-	// http.Handle("/", http.FileServer(static.Box().HTTPBox()))
-	address := fmt.Sprintf("%s:%d", ctx.String("host"), ctx.Int("port"))
-	return http.ListenAndServe(address, nil)
+	a := app.New()
+	http_svc := http.New(ctx)
+	a.AddService(http.ServiceName, http_svc)
+	a.AddService(grpc.ServiceName, grpc.New(ctx))
+	http_svc.GetRouter().Handle("/static/",
+		net_http.FileServer(ricebox.Static().HTTPBox()))
+	return a.Run()
 }

@@ -1,14 +1,13 @@
 package develop
 
 import (
-	"context"
-	"fmt"
-	"net/http"
-	"os"
-	"os/exec"
+	net_http "net/http"
 
+	"github.com/roderm/vuego-boilerplate/pkg/app"
+	"github.com/roderm/vuego-boilerplate/pkg/grpc"
+	"github.com/roderm/vuego-boilerplate/pkg/http"
+	"github.com/roderm/vuego-boilerplate/pkg/web"
 	"github.com/roderm/vuego-boilerplate/ricebox"
-	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
@@ -29,25 +28,21 @@ var Runner = &cli.Command{
 			Name:        "config",
 			DefaultText: "Pass a config file",
 		},
+		&cli.BoolFlag{
+			Name:        "web-log",
+			Value:       true,
+			DefaultText: "Writing the 'npm run dev' log into stdout",
+		},
 	},
 }
 
 func Run(ctx *cli.Context) error {
-	npm, _ := context.WithCancel(ctx.Context)
-	npmLogger := log.New()
-
-	go func(ctx context.Context) {
-		dir, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
-		cmd := exec.CommandContext(ctx, "bash", "-c", "npm run dev")
-		cmd.Dir = dir + "/web"
-		cmd.Stdout = npmLogger.WriterLevel(log.InfoLevel)
-		cmd.Stderr = npmLogger.WriterLevel(log.WarnLevel)
-		panic(cmd.Run())
-	}(npm)
-	http.Handle("/", http.FileServer(ricebox.Static().HTTPBox()))
-	address := fmt.Sprintf("%s:%d", ctx.String("host"), ctx.Int("port"))
-	return http.ListenAndServe(address, nil)
+	a := app.New()
+	http_svc := http.New(ctx)
+	a.AddService(http.ServiceName, http_svc)
+	a.AddService(grpc.ServiceName, grpc.New(ctx))
+	a.AddService(web.ServiceName, web.New(ctx))
+	http_svc.GetRouter().Handle("/static/",
+		net_http.FileServer(ricebox.Static().HTTPBox()))
+	return a.Run()
 }
