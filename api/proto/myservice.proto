@@ -1,1 +1,15 @@
 syntax = "proto3";
+
+option go_package = "github.com/roderm/vuego-boilerplate/api/go/myservice";
+
+service MyService {
+    rpc Hello(HelloRequest) returns (HelloResponse);
+}
+
+message HelloRequest {
+    string Name = 1;
+}
+
+message HelloResponse {
+    string Message = 1;
+}

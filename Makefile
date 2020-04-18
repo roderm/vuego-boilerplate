@@ -9,12 +9,12 @@ rice:
 
 .PHONY: proto
 proto:
-	go get -u github.com/golang/protobuf/protoc-gen-go
-	## TODO: js proto
 	find ./api/ -type f -name *.proto -exec \
         protoc \
         --proto_path=${GOPATH}/src:. \
-        --go_out=plugins=${GOPATH}/src/ \
+        --go_out=plugins=grpc:${GOPATH}/src/ \
+		--js_out=import_style=commonjs:./web/ \
+    	--grpc-web_out=import_style=commonjs,mode=grpcweb:./web/ \
     {} \;
 
 dev:
