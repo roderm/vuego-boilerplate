@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
+    "grpc-web": "^1.0.7",
     "vue": "^2.6.10"
   },
   "devDependencies": {
